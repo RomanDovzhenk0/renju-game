@@ -84,35 +84,30 @@ class RenjuGUI:
                             return row, col
         return None
 
+    def is_valid(self, row, col, color):
+        return 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE and self.board[row][col] == color
+
     def is_five(self, row, col, dx, dy, color):
         count = 1
         r, c = row, col
         for _ in range(4):
             r += dx
             c += dy
-            if 0 <= r < BOARD_SIZE and 0 <= c < BOARD_SIZE and self.board[r][c] == color:
+            if self.is_valid(r, c, color):
                 count += 1
             else:
                 break
         r, c = row - dx, col - dy
         for _ in range(4):
-            if 0 <= r < BOARD_SIZE and 0 <= c < BOARD_SIZE and self.board[r][c] == color:
+            if self.is_valid(r, c, color):
                 count += 1
                 r -= dx
                 c -= dy
             else:
                 break
         if count == 5:
-            before_r = row - dx
-            before_c = col - dy
-            after_r = row + dx * 5
-            after_c = col + dy * 5
-            return not (
-                    (0 <= before_r < BOARD_SIZE and 0 <= before_c < BOARD_SIZE and self.board[before_r][
-                        before_c] == color)
-                    or
-                    (0 <= after_r < BOARD_SIZE and 0 <= after_c < BOARD_SIZE and self.board[after_r][after_c] == color)
-            )
+            return not any(self.is_valid(r, c, color)
+                           for r, c in [(row - dx, col - dy), (row + dx * 5, col + dy * 5)])
         return False
 
     def reset_board(self):
