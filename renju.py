@@ -107,11 +107,12 @@ class RenjuGUI:
             before_c = col - dy
             after_r = row + dx * 5
             after_c = col + dy * 5
-            if (0 <= before_r < BOARD_SIZE and 0 <= before_c < BOARD_SIZE and self.board[before_r][before_c] == color):
-                return False
-            if (0 <= after_r < BOARD_SIZE and 0 <= after_c < BOARD_SIZE and self.board[after_r][after_c] == color):
-                return False
-            return True
+            return not (
+                    (0 <= before_r < BOARD_SIZE and 0 <= before_c < BOARD_SIZE and self.board[before_r][
+                        before_c] == color)
+                    or
+                    (0 <= after_r < BOARD_SIZE and 0 <= after_c < BOARD_SIZE and self.board[after_r][after_c] == color)
+            )
         return False
 
     def reset_board(self):
