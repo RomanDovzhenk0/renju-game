@@ -5,6 +5,7 @@ CELL_SIZE = 30
 STONE_RADIUS = 12
 OFFSET = 15
 
+
 class RenjuGUI:
     def __init__(self, root):
         self.root = root
@@ -76,8 +77,11 @@ class RenjuGUI:
                 self.win_count = self.win_count_var.get()
                 win_pos = self.check_win(self.turn, self.win_count)
                 if win_pos:
+                    r, c, direction = win_pos
                     self.result_label.config(
-                        text=f"Перемога: {'Чорний' if self.turn == 1 else 'Білий'}\nКоорд: {win_pos[0] + 1}, {win_pos[1] + 1}")
+                        text=f"Перемога: {'Чорний' if self.turn == 1 else 'Білий'}\n"
+                             f"Коорд: {r + 1}, {c + 1}\n"
+                             f"Напрям: {direction}")
                     self.status_label.config(text="Гру завершено")
                     self.game_over = True
                     self.canvas.unbind("<Button-1>")
@@ -97,43 +101,52 @@ class RenjuGUI:
                                 x + STONE_RADIUS, y + STONE_RADIUS, fill=fill, outline="black")
 
     def check_win(self, color, win_count):
+        directions = {
+            (0, 1): "горизонталь",
+            (1, 0): "вертикаль",
+            (1, 1): "діагональ \\",
+            (1, -1): "діагональ /"
+        }
         for row in range(BOARD_SIZE):
             for col in range(BOARD_SIZE):
                 if self.board[row][col] == color:
-                    for dx, dy in [(0, 1), (1, 0), (1, 1), (1, -1)]:
-                        if self.is_winning_sequence(row, col, dx, dy, color, win_count):
-                            return row, col
+                    for dx, dy in directions:
+                        result = self.is_winning_sequence(row, col, dx, dy, color, win_count)
+                        if result:
+                            _, r, c = result[:3]
+                            direction = directions[(dx, dy)]
+                            return r, c, direction
         return None
 
     def is_valid(self, row, col, color):
         return 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE and self.board[row][col] == color
 
     def is_winning_sequence(self, row, col, dx, dy, color, win_count):
-        count = 1
-        r, c = row, col
+        positions = [(row, col)]
 
-        for _ in range(win_count - 1):
-            r += dx
-            c += dy
-            if self.is_valid(r, c, color):
-                count += 1
-            else:
-                break
+        def collect_stones(r, c, step_x, step_y):
+            stones = []
+            for _ in range(win_count - 1):
+                r += step_x
+                c += step_y
+                if self.is_valid(r, c, color):
+                    stones.append((r, c))
+                else:
+                    break
+            return stones
 
-        r, c = row - dx, col - dy
-        for _ in range(win_count - 1):
-            if self.is_valid(r, c, color):
-                count += 1
-                r -= dx
-                c -= dy
-            else:
-                break
+        positions += collect_stones(row, col, dx, dy)
+        positions += collect_stones(row, col, -dx, -dy)
 
-        if count == win_count:
-            before_r, before_c = row - dx, col - dy
-            after_r, after_c = row + dx * win_count, col + dy * win_count
-            if not self.is_valid(before_r, before_c, color) and not self.is_valid(after_r, after_c, color):
-                return True
+        if len(positions) == win_count:
+            before = (row - dx, col - dy)
+            after = (row + dx * win_count, col + dy * win_count)
+            if not self.is_valid(*before, color) and not self.is_valid(*after, color):
+                if dx == 1 and dy == 0:
+                    stone = min(positions, key=lambda x: x[0])
+                else:
+                    stone = min(positions, key=lambda x: x[1])
+                return True, stone[0], stone[1]
         return False
 
     def reset_board(self):
@@ -149,6 +162,7 @@ class RenjuGUI:
         self.win_count_label.pack(pady=(20, 5))
         self.win_count_spinbox.pack()
         self.win_count_var.set(5)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
