@@ -80,6 +80,7 @@ class RenjuGUI:
                         text=f"Перемога: {'Чорний' if self.turn == 1 else 'Білий'}\nКоорд: {win_pos[0] + 1}, {win_pos[1] + 1}")
                     self.status_label.config(text="Гру завершено")
                     self.game_over = True
+                    self.canvas.unbind("<Button-1>")
                 else:
                     self.turn = 3 - self.turn
                     self.status_label.config(text=f"Хід: {'Чорний' if self.turn == 1 else 'Білий'}")
@@ -141,6 +142,7 @@ class RenjuGUI:
         self.draw_grid()
         self.turn = 1
         self.game_over = False
+        self.canvas.bind("<Button-1>", self.handle_click)
         self.game_started = False
         self.status_label.config(text="Хід: Чорний")
         self.result_label.config(text="")
