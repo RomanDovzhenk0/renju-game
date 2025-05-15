@@ -3,6 +3,7 @@ import tkinter as tk
 BOARD_SIZE = 19
 CELL_SIZE = 30
 STONE_RADIUS = 12
+OFFSET = 15
 
 class RenjuGUI:
     def __init__(self, root):
@@ -50,8 +51,8 @@ class RenjuGUI:
 
     def draw_grid(self):
         for i in range(BOARD_SIZE):
-            x = CELL_SIZE + i * CELL_SIZE - 15
-            y = CELL_SIZE + i * CELL_SIZE - 15
+            x = CELL_SIZE + i * CELL_SIZE - OFFSET
+            y = CELL_SIZE + i * CELL_SIZE - OFFSET
             self.canvas.create_line(CELL_SIZE // 2, CELL_SIZE // 2 + i * CELL_SIZE,
                                     CELL_SIZE // 2 + (BOARD_SIZE - 1) * CELL_SIZE, CELL_SIZE // 2 + i * CELL_SIZE)
             self.canvas.create_line(CELL_SIZE // 2 + i * CELL_SIZE, CELL_SIZE // 2,
